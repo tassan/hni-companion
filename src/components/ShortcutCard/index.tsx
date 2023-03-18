@@ -13,7 +13,6 @@ export default function ShortcutCard(props: ShortcutCardProps) {
         <Card
             hoverable
             style={{width: 240}}
-            cover={<img alt="example" src={props.image}/>}
         >
             <Meta title={props.title} description={props.description}/>
         </Card>

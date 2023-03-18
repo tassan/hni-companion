@@ -1,25 +1,66 @@
 import React from 'react';
-import {UserProfile, useUser} from '@auth0/nextjs-auth0/client';
+import {useUser} from '@auth0/nextjs-auth0/client';
+import {Avatar, Button} from "antd";
+import {LoggedInUserContainer, LoginCallToAction, LoginContainer, LogoutContainer} from "@/components/Profile/styles";
+import {useRouter} from "next/router";
+import {LogoutOutlined} from "@ant-design/icons";
+
 
 export default function Profile() {
-    const { user, error, isLoading } = useUser();
+    const {user, error, isLoading} = useUser();
+    let router = useRouter();
 
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>{error.message}</div>;
 
-    const ProfileImage = (user: UserProfile) => {
-        const source = user.picture ?? "https://via.placeholder.com/150";
-        const alt = user.name ?? "User Image";
+    const userName = user?.name ? `olá, ${user?.name}` : "deveria ser o seu nome aqui, mas você não colabora!";
+    const userAvatar = user?.picture || "https://i.pinimg.com/474x/e3/43/33/e34333e13adc23bd7323c8b34a7f69b8.jpg";
 
-        return <img src={source} alt={alt} />
+    const handleAvatarClick = () => {
+        router.push("/profile");
+    }
+
+
+    const LoginButton = () => {
+        return (
+            <Button type="primary" shape="round" size="middle" style={{paddingLeft: 2, marginLeft: 10}}>login</Button>
+        )
+    }
+
+    const LogoutButton = () => {
+        return (
+            <Button
+                type="primary"
+                shape="round"
+                size="middle"
+                style={{paddingLeft: 2, marginLeft: 10}}
+                icon={<LogoutOutlined/>}
+                href={"/api/auth/logout"}
+            >
+                logout
+            </Button>
+        )
     }
 
     return (
         <div>
-            <h1>Profile</h1>
-            <ProfileImage {...user} />
-            <p>{user?.name}</p>
-            <p>{user?.email}</p>
+            <LoggedInUserContainer>
+                <LoginContainer>
+                    {!user &&
+                        <>
+                            <span>está esperando um genjutsu? <LoginCallToAction
+                                href="/api/auth/login">faça login!</LoginCallToAction></span>
+                        </>}
+                </LoginContainer>
+                <LogoutContainer>
+                    {user &&
+                        <>
+                            <Avatar src={userAvatar} alt={userName} onClick={handleAvatarClick} />
+                            <LogoutButton/>
+                        </>
+                    }
+                </LogoutContainer>
+            </LoggedInUserContainer>
         </div>
     );
 }

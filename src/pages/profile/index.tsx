@@ -1,6 +1,6 @@
 import {useUser} from "@auth0/nextjs-auth0/client";
 import {Form} from "antd";
-import {ProfilePageContainer} from "@/pages/profile/styles";
+import {ProfilePageContainer} from "@/styles/profile.styles";
 
 export default function Profile() {
     const {user, error, isLoading} = useUser();

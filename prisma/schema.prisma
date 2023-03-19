@@ -10,136 +10,223 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model UserType {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  users User[]
+enum Role {
+  ADMIN
+  USER
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  email      String      @unique
-  name       String?
-  type       String
-  UserType   UserType?   @relation(fields: [userTypeId], references: [id])
-  userTypeId Int?
-  Character  Character[]
-  Mission    Mission[]
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  email     String?     @unique
+  name      String
+  image     String?
+  role      Role        @default(USER)
+  Character Character[]
 }
 
-model Attribute {
+enum Village {
+  KONOHA
+  SUNA
+  KIRIGAKURE
+  IWA
+  KUMOGAKURE
+  UZUSHIO
+}
+
+enum CharacterRank {
+  CHUNIN
+  JOUNIN
+  ANBU
+  NUKENIN
+  KAGE
+}
+
+enum TechiniqueRank {
+  D
+  C
+  B
+  A
+  S
+}
+
+enum TechiniqueType {
+  NINJUTSU
+  GENJUTSU
+  TAIJUTSU
+  FUUINJUTSU
+  FIGHTING_STYLE
+}
+
+model Technique {
   id                 Int                  @id @default(autoincrement())
-  name               String
-  description        String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
-  deletedAt          DateTime?
-  CharacterAttribute CharacterAttribute[]
+  name               String
+  rank               TechiniqueRank
+  description        String
+  type               TechiniqueType
+  clanExclusive      Boolean
+  villageExclusive   Boolean
+  characterExclusive Boolean
+  Clan               Clan?                @relation(fields: [clanId], references: [id])
+  clanId             Int?
+  Specialization     Specialization?      @relation(fields: [specializationId], references: [id])
+  specializationId   Int?
+  Character          Character            @relation(fields: [characterId], references: [id])
+  characterId        Int
+  CharacterTechnique CharacterTechnique[]
 }
 
-model Skill {
-  id             Int              @id @default(autoincrement())
+model Clan {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String
+  image       String?
+  village     Village
+  description String
+  Character   Character[]
+  Technique   Technique[]
+}
+
+model Specialization {
+  id             Int         @id @default(autoincrement())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
   name           String
-  level          Int
   description    String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  deletedAt      DateTime?
-  CharacterSkill CharacterSkill[]
+  maxVacancy     Int
+  currentVacancy Int
+  Character      Character[]
+  Technique      Technique[]
 }
 
-model Feature {
-  id               Int                @id @default(autoincrement())
-  name             String
-  description      String
-  type             String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  deletedAt        DateTime?
-  CharacterFeature CharacterFeature[]
+model Kuchiyose {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String
+  description String
+  image       String?
+  Character   Character[]
+}
+
+enum TraitType {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+}
+
+model Trait {
+  id             Int         @id @default(autoincrement())
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  name           String
+  description    String
+  type           TraitType
+  cost           Int
+  maxVacancy     Int
+  currentVacancy Int
+  Character      Character[]
+}
+
+model Expertise {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String
+  description String
+  level       Int
+  image       String?
+  Character   Character[]
+}
+
+enum Alignment {
+  GOOD
+  NEUTRAL
+  EVIL
+}
+
+enum MoralAlignment {
+  LAWFUL
+  NEUTRAL
+  CHAOTIC
 }
 
 model Character {
   id                 Int                  @id @default(autoincrement())
-  name               String
-  rank               String
-  age                Int
-  division           String
-  alignment          String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
-  deletedAt          DateTime?
-  author             User                 @relation(fields: [authorId], references: [id])
-  authorId           Int
-  CharacterSkill     CharacterSkill[]
-  CharacterFeature   CharacterFeature[]
+  name               String
+  image              String?
+  village            Village
+  rank               CharacterRank
+  moralAlignment     MoralAlignment
+  alignment          Alignment
+  personality        String
+  appearance         String
+  trivias            String
+  user               User                 @relation(fields: [userId], references: [id])
+  userId             Int
+  Clan               Clan?                @relation(fields: [clanId], references: [id])
+  clanId             Int?
+  Specialization     Specialization?      @relation(fields: [specializationId], references: [id])
+  specializationId   Int?
+  Kuchiyose          Kuchiyose?           @relation(fields: [kuchiyoseId], references: [id])
+  kuchiyoseId        Int?
+  Trait              Trait?               @relation(fields: [traitId], references: [id])
+  traitId            Int?
+  Expertise          Expertise?           @relation(fields: [expertiseId], references: [id])
+  expertiseId        Int?
   CharacterAttribute CharacterAttribute[]
-  MissionCharacter   MissionCharacter[]
-  EventCharacter     EventCharacter[]
+  CharacterTechnique CharacterTechnique[]
+  Technique          Technique[]
 }
 
-model CharacterSkill {
-  id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
-  skill       Skill     @relation(fields: [skillId], references: [id])
-  skillId     Int
-  level       Int
+enum AttributeType {
+  STRENGTH
+  AGILITY
+  DEXTERITY
+  VITALITY
+  STAMINA
+  PERCEPTION
+  CHARISMA
+  KNOWLEDGE
+  FOCUS
+  JUTSU
+  CHAKRA
+  CHAKRA_CONTROL
 }
 
-model CharacterFeature {
-  id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
-  feature     Feature   @relation(fields: [featureId], references: [id])
-  featureId   Int
-  level       Int
+model Attribute {
+  id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  name               String
+  description        String
+  type               AttributeType
+  CharacterAttribute CharacterAttribute[]
 }
 
 model CharacterAttribute {
   id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
-  characterId Int
-  attribute   Attribute @relation(fields: [attributeId], references: [id])
-  attributeId Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   value       Int
-}
-
-model Mission {
-  id               Int                @id @default(autoincrement())
-  name             String
-  description      String
-  rank             String
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  deletedAt        DateTime?
-  author           User               @relation(fields: [authorId], references: [id])
-  authorId         Int
-  MissionCharacter MissionCharacter[]
-}
-
-model MissionCharacter {
-  id          Int       @id @default(autoincrement())
-  mission     Mission   @relation(fields: [missionId], references: [id])
-  missionId   Int
-  character   Character @relation(fields: [characterId], references: [id])
+  Character   Character @relation(fields: [characterId], references: [id])
   characterId Int
+  Attribute   Attribute @relation(fields: [attributeId], references: [id])
+  attributeId Int
 }
 
-model Event {
-  id             Int              @id @default(autoincrement())
-  name           String
-  description    String
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  deletedAt      DateTime?
-  EventCharacter EventCharacter[]
-}
-
-model EventCharacter {
+model CharacterTechnique {
   id          Int       @id @default(autoincrement())
-  event       Event     @relation(fields: [eventId], references: [id])
-  eventId     Int
-  character   Character @relation(fields: [characterId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Character   Character @relation(fields: [characterId], references: [id])
   characterId Int
+  Technique   Technique @relation(fields: [techniqueId], references: [id])
+  techniqueId Int
 }

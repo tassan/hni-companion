@@ -1,3 +1,3 @@
 export * from "./models/Character";
-export * from "./repositories/user.repository";
-export * from "./services/user.services";
+export * from "./repositories/character.repository";
+export * from "./services/character.services";

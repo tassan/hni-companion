@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserType {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  users User[]
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  name       String?
+  type       String
+  UserType   UserType?   @relation(fields: [userTypeId], references: [id])
+  userTypeId Int?
+  Character  Character[]
+  Mission    Mission[]
+}
+
+model Attribute {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  description        String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  deletedAt          DateTime?
+  CharacterAttribute CharacterAttribute[]
+}
+
+model Skill {
+  id             Int              @id @default(autoincrement())
+  name           String
+  level          Int
+  description    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  CharacterSkill CharacterSkill[]
+}
+
+model Feature {
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String
+  type             String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
+  CharacterFeature CharacterFeature[]
+}
+
+model Character {
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  rank               String
+  age                Int
+  division           String
+  alignment          String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  deletedAt          DateTime?
+  author             User                 @relation(fields: [authorId], references: [id])
+  authorId           Int
+  CharacterSkill     CharacterSkill[]
+  CharacterFeature   CharacterFeature[]
+  CharacterAttribute CharacterAttribute[]
+  MissionCharacter   MissionCharacter[]
+  EventCharacter     EventCharacter[]
+}
+
+model CharacterSkill {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  skill       Skill     @relation(fields: [skillId], references: [id])
+  skillId     Int
+  level       Int
+}
+
+model CharacterFeature {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  feature     Feature   @relation(fields: [featureId], references: [id])
+  featureId   Int
+  level       Int
+}
+
+model CharacterAttribute {
+  id          Int       @id @default(autoincrement())
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  attribute   Attribute @relation(fields: [attributeId], references: [id])
+  attributeId Int
+  value       Int
+}
+
+model Mission {
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String
+  rank             String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  deletedAt        DateTime?
+  author           User               @relation(fields: [authorId], references: [id])
+  authorId         Int
+  MissionCharacter MissionCharacter[]
+}
+
+model MissionCharacter {
+  id          Int       @id @default(autoincrement())
+  mission     Mission   @relation(fields: [missionId], references: [id])
+  missionId   Int
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+}
+
+model Event {
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+  EventCharacter EventCharacter[]
+}
+
+model EventCharacter {
+  id          Int       @id @default(autoincrement())
+  event       Event     @relation(fields: [eventId], references: [id])
+  eventId     Int
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+}
